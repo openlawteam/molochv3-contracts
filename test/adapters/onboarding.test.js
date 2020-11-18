@@ -27,6 +27,7 @@ SOFTWARE.
 const {
   toBN,
   advanceTime,
+  deployIdentityDao,
   createDao,
   getContract,
   GUILD,
@@ -38,15 +39,20 @@ const {
   VotingContract,
   ETH_TOKEN,
 } = require("../../utils/DaoFactory.js");
-const {checkBalance} = require("../../utils/TestUtils.js");
+const { checkBalance } = require("../../utils/TestUtils.js");
+describe("LAOLAND - Onboarding Adapter", async (accounts) => {
+  let identityAddress = null;
+  before("deploying identity dao", async function () {
+    let accounts = await web3.eth.getAccounts();
+    identityAddress = await deployIdentityDao(accounts[1]);
+  });
 
-contract("LAOLAND - Onboarding Adapter", async (accounts) => {
   it("should be possible to join a DAO", async () => {
     const myAccount = accounts[1];
     const otherAccount = accounts[2];
     const nonMemberAccount = accounts[3];
 
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
     const voting = await getContract(dao, "voting", VotingContract);
@@ -99,7 +105,7 @@ contract("LAOLAND - Onboarding Adapter", async (accounts) => {
   it("should be possible to cancel an onboarding proposal", async () => {
     const myAccount = accounts[1];
     const otherAccount = accounts[2];
-    const dao = await createDao(myAccount);
+    const dao = await createDao(identityAddress, myAccount);
 
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
 
@@ -152,7 +158,7 @@ contract("LAOLAND - Onboarding Adapter", async (accounts) => {
   it("should be possible to withdraw an onboarding proposal", async () => {
     const myAccount = accounts[1];
     const otherAccount = accounts[2];
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
     const voting = await getContract(dao, "voting", VotingContract);
@@ -201,7 +207,7 @@ contract("LAOLAND - Onboarding Adapter", async (accounts) => {
   it("should validate inputs", async () => {
     const myAccount = accounts[1];
     const otherAccount = accounts[2];
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
 
@@ -240,7 +246,7 @@ contract("LAOLAND - Onboarding Adapter", async (accounts) => {
     const otherAccount = accounts[2];
     const nonMemberAccount = accounts[3];
 
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
     const voting = await getContract(dao, "voting", VotingContract);
@@ -263,7 +269,7 @@ contract("LAOLAND - Onboarding Adapter", async (accounts) => {
   it("should be possible to cancel an onboarding proposal", async () => {
     const myAccount = accounts[1];
     const otherAccount = accounts[2];
-    const dao = await createDao(myAccount);
+    const dao = await createDao(identityAddress, myAccount);
 
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
 
@@ -316,7 +322,7 @@ contract("LAOLAND - Onboarding Adapter", async (accounts) => {
   it("should be possible to withdraw an onboarding proposal", async () => {
     const myAccount = accounts[1];
     const otherAccount = accounts[2];
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
     const voting = await getContract(dao, "voting", VotingContract);
@@ -365,7 +371,7 @@ contract("LAOLAND - Onboarding Adapter", async (accounts) => {
   it("should validate inputs", async () => {
     const myAccount = accounts[1];
     const otherAccount = accounts[2];
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
 

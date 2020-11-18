@@ -31,11 +31,14 @@ const {
   sha3,
   toBN,
   fromUtf8,
+  deployIdentityDao,
   createDao,
   OnboardingContract,
 } = require("../../utils/DaoFactory.js");
 
 contract("Registry", async (accounts) => {
+  const identityAddress = await deployIdentityDao(accounts[1]);
+
   it("should not be possible to add a module with invalid id", async () => {
     let lib = await FlagHelperLib.new();
     await DaoRegistry.link("FlagHelper", lib.address);
@@ -146,7 +149,7 @@ contract("Registry", async (accounts) => {
   it("should be possible to update delegate key", async () => {
     const myAccount = accounts[1];
     const delegateKey = accounts[2];
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     const onboardingAddr = await dao.getAdapterAddress(sha3("onboarding"));
     const onboarding = await OnboardingContract.at(onboardingAddr);

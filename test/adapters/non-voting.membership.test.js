@@ -28,6 +28,7 @@ const {
   sha3,
   toBN,
   advanceTime,
+  deployIdentityDao,
   createDao,
   GUILD,
   LOOT,
@@ -39,11 +40,13 @@ const {
 } = require("../../utils/DaoFactory.js");
 
 contract("LAOLAND - Non Voting Onboarding Adapter", async (accounts) => {
+  const identityAddress = await deployIdentityDao();
+
   it("should be possible to join a DAO as a member without any voting power by requesting Loot while staking raw ETH", async () => {
     const myAccount = accounts[1];
     const advisorAccount = accounts[2];
 
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     const onboardingAddress = await dao.getAdapterAddress(sha3("onboarding"));
     const onboarding = await OnboardingContract.at(onboardingAddress);
@@ -107,6 +110,7 @@ contract("LAOLAND - Non Voting Onboarding Adapter", async (accounts) => {
     let nbOfLootShares = 100000000;
 
     let dao = await createDao(
+      identityAddress,
       myAccount,
       lootSharePrice,
       nbOfLootShares,
@@ -135,7 +139,9 @@ contract("LAOLAND - Non Voting Onboarding Adapter", async (accounts) => {
     let tokenAmount = 10;
 
     // Pre-approve spender (DAO) to transfer applicant tokens
-    await oltContract.approve(dao.address, tokenAmount, {from: advisorAccount});
+    await oltContract.approve(dao.address, tokenAmount, {
+      from: advisorAccount,
+    });
 
     // Send a request to join the DAO as an Advisor (non-voting power),
     // the tx passes the OLT ERC20 token, the amount and the nonVotingOnboarding adapter that handles the proposal

@@ -171,9 +171,26 @@ async function addDefaultAdapters(
   return dao;
 }
 
-var identityDao = null;
+async function deployIdentityDao(senderAccount) {
+  let lib = await FlagHelperLib.new();
+  await DaoRegistry.link("FlagHelper", lib.address);
+  console.log(`sender ${senderAccount}`);
+  let identityDao = await DaoRegistry.new({
+    from: senderAccount,
+    gasPrice: toBN("0"),
+  });
+  let receipt = await web3.eth.getTransactionReceipt(
+    identityDao.transactionHash
+  );
+  console.log(
+    "gas used to deploy the identity dao:",
+    receipt && receipt.gasUsed
+  );
+  return identityDao.address;
+}
 
 async function createDao(
+  identityAddress,
   senderAccount,
   unitPrice = sharePrice,
   nbShares = numberOfShares,
@@ -181,25 +198,7 @@ async function createDao(
   gracePeriod = 1,
   tokenAddr = ETH_TOKEN
 ) {
-  if (identityDao == null) {
-    let lib = await FlagHelperLib.new();
-    await DaoRegistry.link("FlagHelper", lib.address);
-
-    identityDao = await DaoRegistry.new({
-      from: senderAccount,
-      gasPrice: toBN("0"),
-    });
-    let receipt = await web3.eth.getTransactionReceipt(
-      identityDao.transactionHash
-    );
-    console.log(
-      "gas used to deploy the identity dao:",
-      receipt && receipt.gasUsed
-    );
-    // Call the initialize to ensure we add the first member of the DAO to initialize it
-  }
-
-  let dao = await cloneDao(identityDao.address, senderAccount);
+  let dao = await cloneDao(identityAddress, senderAccount);
 
   await addDefaultAdapters(
     dao,
@@ -309,6 +308,7 @@ async function getContract(dao, id, contractFactory) {
 module.exports = {
   prepareSmartContracts,
   advanceTime,
+  deployIdentityDao,
   createDao,
   addDefaultAdapters,
   getContract,

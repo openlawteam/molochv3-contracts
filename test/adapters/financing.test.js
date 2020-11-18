@@ -29,6 +29,7 @@ const {
   fromUtf8,
   getContract,
   advanceTime,
+  deployIdentityDao,
   createDao,
   GUILD,
   SHARES,
@@ -38,17 +39,18 @@ const {
   FinancingContract,
   ETH_TOKEN,
 } = require("../../utils/DaoFactory.js");
-const {checkLastEvent, checkBalance} = require("../../utils/TestUtils.js");
+const { checkLastEvent, checkBalance } = require("../../utils/TestUtils.js");
 const remaining = sharePrice.sub(toBN("50000000000000"));
 
 contract("LAOLAND - Financing Adapter", async (accounts) => {
+  const identityAddress = await deployIdentityDao();
   const myAccount = accounts[1];
   const applicant = accounts[2];
   const newMember = accounts[3];
   const expectedGuildBalance = toBN("1200000000000000000");
 
   it("should be possible to any individual to request financing", async () => {
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
     const voting = await getContract(dao, "voting", VotingContract);
     const financing = await getContract(dao, "financing", FinancingContract);
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
@@ -68,7 +70,7 @@ contract("LAOLAND - Financing Adapter", async (accounts) => {
 
     //Get the new proposal id
     let proposalId = "0";
-    await checkLastEvent(dao, {proposalId});
+    await checkLastEvent(dao, { proposalId });
 
     //Sponsor the new proposal, vote and process it
     await onboarding.sponsorProposal(dao.address, proposalId, [], {
@@ -105,12 +107,12 @@ contract("LAOLAND - Financing Adapter", async (accounts) => {
       ETH_TOKEN,
       requestedAmount,
       fromUtf8(""),
-      {gasPrice: toBN("0")}
+      { gasPrice: toBN("0") }
     );
 
     //Get the new proposalId from event log
     proposalId = "1";
-    await checkLastEvent(dao, {proposalId});
+    await checkLastEvent(dao, { proposalId });
 
     //Member sponsors the Financing proposal
     await financing.sponsorProposal(dao.address, proposalId, [], {
@@ -146,7 +148,7 @@ contract("LAOLAND - Financing Adapter", async (accounts) => {
   });
 
   it("should not be possible to get the money if the proposal fails", async () => {
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
     const voting = await getContract(dao, "voting", VotingContract);
     const financing = await getContract(dao, "financing", FinancingContract);
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
@@ -166,7 +168,7 @@ contract("LAOLAND - Financing Adapter", async (accounts) => {
 
     //Get the new proposal id
     let proposalId = "0";
-    await checkLastEvent(dao, {proposalId});
+    await checkLastEvent(dao, { proposalId });
 
     //Sponsor the new proposal, vote and process it
     await onboarding.sponsorProposal(dao.address, proposalId, [], {
@@ -196,7 +198,7 @@ contract("LAOLAND - Financing Adapter", async (accounts) => {
 
     //Get the new proposalId from event log
     proposalId = "1";
-    await checkLastEvent(dao, {proposalId});
+    await checkLastEvent(dao, { proposalId });
 
     //Member sponsors the Financing proposal
     await financing.sponsorProposal(dao.address, proposalId, [], {
@@ -223,7 +225,7 @@ contract("LAOLAND - Financing Adapter", async (accounts) => {
   });
 
   it("should not be possible to submit a proposal with a token that is not allowed", async () => {
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
     const voting = await getContract(dao, "voting", VotingContract);
     const financing = await getContract(dao, "financing", FinancingContract);
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
@@ -243,7 +245,7 @@ contract("LAOLAND - Financing Adapter", async (accounts) => {
 
     //Get the new proposal id
     let proposalId = "0";
-    await checkLastEvent(dao, {proposalId});
+    await checkLastEvent(dao, { proposalId });
 
     //Sponsor the new proposal, vote and process it
     await onboarding.sponsorProposal(dao.address, proposalId, [], {
@@ -281,7 +283,7 @@ contract("LAOLAND - Financing Adapter", async (accounts) => {
   });
 
   it("should not be possible to submit a proposal to request funding with an amount equals to zero", async () => {
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
     const voting = await getContract(dao, "voting", VotingContract);
     const financing = await getContract(dao, "financing", FinancingContract);
     const onboarding = await getContract(dao, "onboarding", OnboardingContract);
@@ -301,7 +303,7 @@ contract("LAOLAND - Financing Adapter", async (accounts) => {
 
     //Get the new proposal id
     let proposalId = "0";
-    await checkLastEvent(dao, {proposalId});
+    await checkLastEvent(dao, { proposalId });
 
     //Sponsor the new proposal, vote and process it
     await onboarding.sponsorProposal(dao.address, proposalId, [], {

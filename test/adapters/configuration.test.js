@@ -29,6 +29,7 @@ const {
   toBN,
   fromUtf8,
   advanceTime,
+  deployIdentityDao,
   createDao,
   GUILD,
   TOTAL,
@@ -40,11 +41,13 @@ const {
 } = require("../../utils/DaoFactory.js");
 
 contract("LAOLAND - Configuration Adapter", async (accounts) => {
+  const identityAddress = await deployIdentityDao();
+
   it("should be possible to set a single configuration parameter", async () => {
     const myAccount = accounts[1];
 
     //Create the new DAO
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
     let key = sha3("key");
 
     //Submit a new configuration proposal
@@ -57,7 +60,7 @@ contract("LAOLAND - Configuration Adapter", async (accounts) => {
       [key],
       [toBN("10")],
       fromUtf8(""),
-      {from: myAccount, gasPrice: toBN("0")}
+      { from: myAccount, gasPrice: toBN("0") }
     );
 
     let value = await dao.getConfiguration(key);
@@ -93,7 +96,7 @@ contract("LAOLAND - Configuration Adapter", async (accounts) => {
     const myAccount = accounts[1];
 
     //Create the new DAO
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
     let key1 = sha3("key1");
     let key2 = sha3("key2");
 
@@ -107,7 +110,7 @@ contract("LAOLAND - Configuration Adapter", async (accounts) => {
       [key1, key2],
       [toBN("10"), toBN("15")],
       fromUtf8(""),
-      {from: myAccount, gasPrice: toBN("0")}
+      { from: myAccount, gasPrice: toBN("0") }
     );
 
     let value1 = await dao.getConfiguration(key1);
@@ -150,7 +153,7 @@ contract("LAOLAND - Configuration Adapter", async (accounts) => {
     const myAccount = accounts[1];
 
     //Create the new DAO
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
     let key = sha3("key");
 
     //Submit a new configuration proposal
@@ -164,7 +167,7 @@ contract("LAOLAND - Configuration Adapter", async (accounts) => {
         [key],
         [],
         fromUtf8(""),
-        {from: myAccount, gasPrice: toBN("0")}
+        { from: myAccount, gasPrice: toBN("0") }
       );
     } catch (err) {
       assert.equal(

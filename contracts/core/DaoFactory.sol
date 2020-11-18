@@ -40,7 +40,6 @@ contract DaoFactory is CloneFactory, DaoConstants {
     }
 
     event DAOCreated(address _address);
-    event Debug(string msg);
 
      //TODO: ACL? onlyOwner?
     function newDao(address _libraryAddress) external {
@@ -57,7 +56,6 @@ contract DaoFactory is CloneFactory, DaoConstants {
     function addAdapters(DaoRegistry dao, Adapter[] calldata adapters)
         external
     {
-        emit Debug("add adapters");
         //Registring Adapters
         require(
             dao.state() == DaoRegistry.DaoState.CREATION,

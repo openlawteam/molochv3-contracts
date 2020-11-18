@@ -29,6 +29,7 @@ const {
   toBN,
   fromUtf8,
   advanceTime,
+  deployIdentityDao,
   createDao,
   sharePrice,
   GUILD,
@@ -41,9 +42,11 @@ const {
   RagequitContract,
   FinancingContract,
 } = require("../../utils/DaoFactory.js");
-const {checkLastEvent} = require("../../utils/TestUtils.js");
+const { checkLastEvent } = require("../../utils/TestUtils.js");
 
 contract("LAOLAND - Ragequit Adapter", async (accounts) => {
+  const identityAddress = await deployIdentityDao(accounts[1]);
+
   const submitNewMemberProposal = async (
     onboarding,
     dao,
@@ -65,7 +68,7 @@ contract("LAOLAND - Ragequit Adapter", async (accounts) => {
     );
     //Get the new proposal id
     let pastEvents = await dao.getPastEvents();
-    let {proposalId} = pastEvents[0].returnValues;
+    let { proposalId } = pastEvents[0].returnValues;
     return proposalId;
   };
 
@@ -114,7 +117,7 @@ contract("LAOLAND - Ragequit Adapter", async (accounts) => {
     const myAccount = accounts[1];
     const newMember = accounts[2];
 
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     //Add funds to the Guild Bank after sposoring a member to join the Guild
     const onboardingAddress = await dao.getAdapterAddress(sha3("onboarding"));
@@ -158,7 +161,7 @@ contract("LAOLAND - Ragequit Adapter", async (accounts) => {
     const myAccount = accounts[1];
     const newMember = accounts[2];
 
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     //Add funds to the Guild Bank after sposoring a member to join the Guild
     const onboardingAddress = await dao.getAdapterAddress(sha3("onboarding"));
@@ -202,7 +205,7 @@ contract("LAOLAND - Ragequit Adapter", async (accounts) => {
     const myAccount = accounts[1];
     const newMember = accounts[2];
 
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     //Add funds to the Guild Bank after sposoring a member to join the Guild
     const onboardingAddress = await dao.getAdapterAddress(sha3("onboarding"));
@@ -246,7 +249,7 @@ contract("LAOLAND - Ragequit Adapter", async (accounts) => {
     const newMember = accounts[2];
     const applicant = accounts[3];
 
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     //Add funds to the Guild Bank after sposoring a member to join the Guild
     const onboardingAddress = await dao.getAdapterAddress(sha3("onboarding"));
@@ -292,7 +295,7 @@ contract("LAOLAND - Ragequit Adapter", async (accounts) => {
 
     //Get the new proposalId from event log
     proposalId = 1;
-    await checkLastEvent(dao, {proposalId});
+    await checkLastEvent(dao, { proposalId });
 
     //Old Member sponsors the Financing proposal
     await financing.sponsorProposal(dao.address, proposalId, [], {
@@ -320,7 +323,7 @@ contract("LAOLAND - Ragequit Adapter", async (accounts) => {
     const newMember = accounts[2];
     const applicant = accounts[3];
 
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     //Add funds to the Guild Bank after sposoring a member to join the Guild
     const onboardingAddress = await dao.getAdapterAddress(sha3("onboarding"));
@@ -366,7 +369,7 @@ contract("LAOLAND - Ragequit Adapter", async (accounts) => {
 
     //Get the new proposalId from event log
     proposalId = 1;
-    checkLastEvent(dao, {proposalId});
+    checkLastEvent(dao, { proposalId });
 
     //Old Member sponsors the Financing proposal
     await financing.sponsorProposal(dao.address, proposalId, [], {
@@ -401,6 +404,7 @@ contract("LAOLAND - Ragequit Adapter", async (accounts) => {
     let oltContract = await OLTokenContract.new(tokenSupply);
 
     let dao = await createDao(
+      identityAddress,
       myAccount,
       lootSharePrice,
       chunkSize,
@@ -494,7 +498,14 @@ contract("LAOLAND - Ragequit Adapter", async (accounts) => {
     let lootSharePrice = 10;
     let chunkSize = 5;
 
-    let dao = await createDao(myAccount, lootSharePrice, chunkSize, 10, 1);
+    let dao = await createDao(
+      identityAddress,
+      myAccount,
+      lootSharePrice,
+      chunkSize,
+      10,
+      1
+    );
 
     // Transfer 1000 OLTs to the Advisor account
     const onboardingAddress = await dao.getAdapterAddress(sha3("onboarding"));

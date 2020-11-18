@@ -28,6 +28,7 @@ const {
   sha3,
   toBN,
   advanceTime,
+  deployIdentityDao,
   createDao,
   GUILD,
   TOTAL,
@@ -38,11 +39,13 @@ const {
 } = require("../../utils/DaoFactory.js");
 
 contract("LAOLAND - Managing Adapter", async (accounts) => {
+  const identityAddress = await deployIdentityDao();
+
   it("should not be possible to propose a new module with 0x0 module address", async () => {
     const myAccount = accounts[1];
 
     //Create the new DAO
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     //Submit a new Bank module proposal
     let newModuleId = sha3("bank");
@@ -56,7 +59,7 @@ contract("LAOLAND - Managing Adapter", async (accounts) => {
         [],
         [],
         0,
-        {from: myAccount, gasPrice: toBN("0")}
+        { from: myAccount, gasPrice: toBN("0") }
       );
       assert.err("should not pass");
     } catch (err) {
@@ -68,7 +71,7 @@ contract("LAOLAND - Managing Adapter", async (accounts) => {
     const myAccount = accounts[1];
 
     //Create the new DAO
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     //Submit a new Bank module proposal
     let newModuleId = sha3("bank");
@@ -82,7 +85,7 @@ contract("LAOLAND - Managing Adapter", async (accounts) => {
         [],
         [],
         0,
-        {from: myAccount, gasPrice: toBN("0")}
+        { from: myAccount, gasPrice: toBN("0") }
       );
       assert.err("should not pass");
     } catch (err) {
@@ -97,7 +100,7 @@ contract("LAOLAND - Managing Adapter", async (accounts) => {
         [],
         [],
         0,
-        {from: myAccount, gasPrice: toBN("0")}
+        { from: myAccount, gasPrice: toBN("0") }
       );
       assert.err("should not pass");
     } catch (err) {
@@ -109,7 +112,7 @@ contract("LAOLAND - Managing Adapter", async (accounts) => {
     const myAccount = accounts[1];
 
     //Create the new DAO
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
 
     //Submit a new Bank module proposal
     let newModuleId = sha3("managing");
@@ -137,7 +140,7 @@ contract("LAOLAND - Managing Adapter", async (accounts) => {
     const myAccount = accounts[1];
 
     //Create the new DAO
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
     let managingContract = await dao.getAdapterAddress(sha3("managing"));
     let managing = await ManagingContract.at(managingContract);
 
@@ -154,7 +157,7 @@ contract("LAOLAND - Managing Adapter", async (accounts) => {
       [],
       [],
       0,
-      {from: myAccount, gasPrice: toBN("0")}
+      { from: myAccount, gasPrice: toBN("0") }
     );
 
     //Get the new proposal id
@@ -185,7 +188,7 @@ contract("LAOLAND - Managing Adapter", async (accounts) => {
     const delegateKey = accounts[3];
 
     //Create the new DAO
-    let dao = await createDao(myAccount);
+    let dao = await createDao(identityAddress, myAccount);
     let managingContract = await dao.getAdapterAddress(sha3("managing"));
     let managing = await ManagingContract.at(managingContract);
 
@@ -201,7 +204,7 @@ contract("LAOLAND - Managing Adapter", async (accounts) => {
       [],
       [],
       0,
-      {from: myAccount, gasPrice: toBN("0")}
+      { from: myAccount, gasPrice: toBN("0") }
     );
 
     let proposalId = 0;
