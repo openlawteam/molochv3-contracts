@@ -41,48 +41,6 @@ function getMessageERC712Hash(m, verifyingContract, actionId, chainId) {
   return '0x' + sigUtil.TypedDataUtils.sign(msgParams).toString('hex');
 }
 
-function getDomainDefinition(message, verifyingContract, actionId, chainId) {
-  switch(message.type) {
-    case "vote":
-      return getVoteDomainDefinition(verifyingContract, actionId, chainId);
-    case "proposal":
-      return getProposalDomainDefinition(verifyingContract, actionId, chainId);
-    case "result":
-      return getVoteResultRootDomainDefinition(verifyingContract, actionId, chainId);
-    default:
-      throw new Error("unknown type '" + message.type + "'");
-  }
- }
-
- function getMessageDomainType(chainId, verifyingContract, actionId) {
-  return {
-    name: 'Snapshot Message',
-    version: '4',
-    chainId,
-    verifyingContract,
-    actionId
-  }
- }
-
-function getVoteDomainDefinition(verifyingContract, actionId, chainId) {
-  const domain = getMessageDomainType(chainId, verifyingContract, actionId);
-
-  // The named list of all type definitions
-  const types = {
-      Message: [
-        { name: 'timestamp', type: 'uint256' },
-        { name: 'payload', type: 'MessagePayload' }
-      ],
-      MessagePayload: [
-        { name: 'choice', type: 'uint256' },
-        { name: 'proposalHash', type: 'bytes32' }
-      ],
-      EIP712Domain: getDomainType()
-  };
-
-  return { domain, types}
-}
-
 function getVoteStepDomainDefinition(verifyingContract, actionId, chainId) {
   const domain = getMessageDomainType(chainId, verifyingContract, actionId);
 
@@ -137,16 +95,6 @@ function getVoteResultRootDomainDefinition(verifyingContract, actionId, chainId)
   };
 
   return { domain, types}
-}
-
-function getDomainType() {
-  return [
-    { name: 'name', type: 'string' },
-    { name: 'version', type: 'string' },
-    { name: 'chainId', type: 'uint256' },
-    { name: 'verifyingContract', type: 'address' },
-    { name: 'actionId', type: 'address' },
-  ];
 }
 
 async function signMessage(signer, message, verifyingContract, chainId) {
@@ -384,7 +332,6 @@ Object.assign(exports, {
     toStepNode,
     buildVoteLeafHashForMerkleTree,
     validateMessage,
-    getDomainDefinition,
     signMessage,
     Web3Signer,
     SigUtilSigner,
@@ -393,8 +340,6 @@ Object.assign(exports, {
     prepareVoteProposalData,
     prepareProposalMessage,
     getMessageERC712Hash,
-    getProposalDomainDefinition,
-    getVoteDomainDefinition,
     getVoteStepDomainDefinition,
     getVoteResultRootDomainDefinition,
     TypedDataUtils: sigUtil.TypedDataUtils
