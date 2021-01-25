@@ -1,5 +1,8 @@
-
 [![codecov](https://codecov.io/gh/openlawteam/laoland/branch/master/graph/badge.svg?token=XZRL9RUYZE)](https://codecov.io/gh/openlawteam/laoland/)
+
+# Airdrop Adapter Sandbox
+
+Continuing with basic operating functions, the ability to pay or allocate tokens or ETH to a collection of accounts in a single transaction is a very appealing feature of web3 and smart contracts. In terms of implementation, such “airdrops” can be prepared as a `for loop` function (here, `airdrop()`) that runs through a list of accounts fed into a Tribute withdraw pull that then forwards funds in specific award amounts. 
 
 ## Overview
 
