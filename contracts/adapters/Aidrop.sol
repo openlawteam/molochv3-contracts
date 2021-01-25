@@ -63,7 +63,12 @@ contract AirDropContract is DaoConstants, MemberGuard {
         }
         
         for (uint256 i = 0; i < receivers.length; i++) {
-            erc20.transfer(receivers, amount.div(receivers.length));
+            if (tokenAddr == ETH_TOKEN) {
+                (bool success, ) = receivers[i].call.value(amount.div(receivers.length))("");
+                require(success, "ETH transfer failed");
+            } else {
+                erc20.transfer(receivers, amount.div(receivers.length));
+            }
         }
     }
 }
