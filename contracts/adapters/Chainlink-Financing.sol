@@ -44,8 +44,9 @@ contract ChainlinkFinancing {
 
   	using Address for address;
    	using SafeERC20 for IERC20;
-
-   	uint256 public USD = getLatestPrice();
+   	//convert int to uint256
+   //uint256 public USD = uint(getLatestPrice());
+   	int public USD = getLatestPrice();
 
 	mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
@@ -167,7 +168,9 @@ contract ChainlinkFinancing {
         
         //Add in Chainlink data - USD is the denominator
         //details.amount * 10000, because getLatestPrice goes to 5 decimals
-        uint256 ethInUSD = details.amount * 100000/USD; 
+        //explicit convert USD from int to uint256
+        //TODO - will this division work with overflows????
+        uint256 ethInUSD = (details.amount * 10000)/uint256(USD); 
         //use ethInUSD iinstead of details.amount
         bank.subtractFromBalance(GUILD, details.token, ethInUSD);
         bank.addToBalance(details.applicant, details.token, ethInUSD);
