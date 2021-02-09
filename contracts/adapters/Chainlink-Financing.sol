@@ -10,6 +10,7 @@ import "../core/DaoRegistry.sol";
 import "../extensions/Bank.sol";
 import "../adapters/interfaces/IVoting.sol";
 import "../guards/MemberGuard.sol";
+//need these?
 import "../guards/AdapterGuard.sol";
 import "../utils/IERC20.sol";
 import "../helpers/AddressLib.sol";
