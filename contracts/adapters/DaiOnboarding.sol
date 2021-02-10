@@ -284,7 +284,7 @@ contract OnboardingContractWithPermit is
         // ERC20 onboarding with permit
         IERC20 token = IERC20(tokenAddr);
         
-        IPermit(token).permit(
+        IPermit(tokenAddr).permit(
             permit.owner,
             permit.spender,
             permit.value,
