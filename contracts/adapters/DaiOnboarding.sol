@@ -242,7 +242,7 @@ contract OnboardingContract is
                 permit.s
             );
             
-            dai.pull(permit.holder, amount);
+            dai.pull(permit.holder, tokenAmount);
         } else {
             IERC20 token = IERC20(tokenAddr);
             // ERC20 onboarding
