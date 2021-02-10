@@ -11,6 +11,7 @@ import "../guards/MemberGuard.sol";
 import "../guards/AdapterGuard.sol";
 import "../utils/IERC20.sol";
 import "../utils/IDAI.sol";
+import "../utils/IPermit.sol";
 import "../helpers/AddressLib.sol";
 import "../helpers/SafeERC20.sol";
 
@@ -38,7 +39,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-contract OnboardingContract is
+contract OnboardingContractWithPermit is
     IOnboarding,
     DaoConstants,
     MemberGuard,
@@ -47,8 +48,7 @@ contract OnboardingContract is
     using Address for address payable;
     using SafeERC20 for IERC20;
     
-    Dai public dai;
-    address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address constant dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 
     bytes32 constant ChunkSize = keccak256("onboarding.chunkSize");
     bytes32 constant SharesPerChunk = keccak256("onboarding.sharesPerChunk");
@@ -56,6 +56,16 @@ contract OnboardingContract is
     bytes32 constant MaximumChunks = keccak256("onboarding.maximumChunks");
     
     struct Permit {
+        address owner;
+        address spender;
+        uint256 value;
+        uint256 deadline;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
+    
+    struct DaiPermit {
         address holder;
         address spender;
         uint256 nonce;
@@ -215,8 +225,7 @@ contract OnboardingContract is
         bytes32 proposalId,
         address payable applicant,
         address tokenToMint,
-        uint256 tokenAmount,
-        Permit calldata permit
+        uint256 tokenAmount
     ) public payable override {
         require(
             dao.isNotReservedAddress(applicant),
@@ -229,20 +238,6 @@ contract OnboardingContract is
             require(msg.value > 0, "not enough ETH");
             // If the applicant sends ETH to onboard, use the msg.value as default token amount
             tokenAmount = msg.value;
-        } else if (tokenAddr == DAI) {
-            // DAI onboarding
-            dai.permit(
-                permit.holder,
-                permit.spender,
-                permit.nonce,
-                permit.expiry,
-                permit.allowed,
-                permit.v,
-                permit.r,
-                permit.s
-            );
-            
-            dai.pull(permit.holder, tokenAmount);
         } else {
             IERC20 token = IERC20(tokenAddr);
             // ERC20 onboarding
@@ -268,6 +263,98 @@ contract OnboardingContract is
                 IERC20 token = IERC20(tokenAddr);
                 token.safeTransfer(msg.sender, amount);
             }
+        }
+    }
+    
+    function onboardWithPermit(
+        DaoRegistry dao,
+        bytes32 proposalId,
+        address payable applicant,
+        address tokenToMint,
+        uint256 tokenAmount,
+        Permit calldata permit
+    ) public override {
+        require(
+            dao.isNotReservedAddress(applicant),
+            "applicant is reserved address"
+        );
+        address tokenAddr =
+            dao.getAddressConfiguration(configKey(tokenToMint, TokenAddr));
+        
+        // ERC20 onboarding with permit
+        IERC20 token = IERC20(tokenAddr);
+        
+        IPermit(token).permit(
+            permit.owner,
+            permit.spender,
+            permit.value,
+            permit.deadline,
+            permit.v,
+            permit.r,
+            permit.s
+        );
+        
+        token.safeTransferFrom(permit.owner, address(this), tokenAmount);
+
+        uint256 amountUsed =
+            _submitMembershipProposal(
+                dao,
+                proposalId,
+                tokenToMint,
+                applicant,
+                msg.sender,
+                tokenAmount,
+                tokenAddr
+            );
+
+        if (amountUsed < tokenAmount) {
+            uint256 amount = tokenAmount - amountUsed;
+            token.safeTransfer(msg.sender, amount);
+        }
+    }
+    
+    function onboardWithDaiPermit(
+        DaoRegistry dao,
+        bytes32 proposalId,
+        address applicant,
+        address tokenToMint,
+        uint256 tokenAmount,
+        DaiPermit calldata permit
+    ) public override {
+        require(
+            dao.isNotReservedAddress(applicant),
+            "applicant is reserved address"
+        );
+        IDAI token = IDAI(dai);
+         
+        // dai onboarding with permit
+        token.permit(
+            permit.holder,
+            permit.spender,
+            permit.nonce,
+            permit.expiry,
+            permit.allowed,
+            permit.v,
+            permit.r,
+            permit.s
+        );
+            
+        token.pull(permit.holder, tokenAmount);
+        
+        uint256 amountUsed =
+            _submitMembershipProposal(
+                dao,
+                proposalId,
+                tokenToMint,
+                applicant,
+                msg.sender,
+                tokenAmount,
+                tokenAddr
+            );
+
+        if (amountUsed < tokenAmount) {
+            uint256 amount = tokenAmount - amountUsed;
+            token.push(msg.sender, amount);
         }
     }
 
