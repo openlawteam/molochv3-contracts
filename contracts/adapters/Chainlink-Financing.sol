@@ -171,8 +171,8 @@ contract ChainlinkFinancing {
 			details.amount * 1000000000000000000000 = convert numerator to wei.
 
         */
-        uint denominator = uint(getLatestPrice()) * 100000; 
-        uint256 ethInUsdAmount = (details.amount * 1000000000000000000000)/denominator; 
+        uint denominator = uint(getLatestPrice()); 
+        uint256 ethInUsdAmount = details.amount * 1000000000000000000000/denominator * 100000; 
         //use ethInUsdAmount iinstead of details.amount
         bank.subtractFromBalance(GUILD, details.token, ethInUsdAmount);
         bank.addToBalance(details.applicant, details.token, ethInUsdAmount);
