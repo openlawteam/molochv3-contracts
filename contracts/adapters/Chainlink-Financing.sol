@@ -2,19 +2,18 @@ pragma solidity ^0.8.0;
 
 // SPDX-License-Identifier: MIT
 
-import "./interfaces/IFinancing.sol";
-//TODO - write interface 
-//import "./interfaces/IChainlink-Financing.sol";
+//interace for Chainlink Financing is same as IFinancing.sol
+import "./interfaces/IFinancing.sol"; 
 import "../core/DaoConstants.sol";
 import "../core/DaoRegistry.sol";
 import "../extensions/Bank.sol";
 import "../adapters/interfaces/IVoting.sol";
 import "../guards/MemberGuard.sol";
 //need these?
-import "../guards/AdapterGuard.sol";
-import "../utils/IERC20.sol";
-import "../helpers/AddressLib.sol";
-import "../helpers/SafeERC20.sol";
+// import "../guards/AdapterGuard.sol";
+// import "../utils/IERC20.sol";
+// import "../helpers/AddressLib.sol";
+// import "../helpers/SafeERC20.sol";
 
 //import Chainlink Aggregator
 import "https://github.com/smartcontractkit/chainlink/evm-contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
@@ -42,9 +41,6 @@ contract ChainlinkFinancing {
 
   	using Address for address;
    	using SafeERC20 for IERC20;
-   	//convert int to uint256
-   //uint256 public USD = uint(getLatestPrice());
-   	//int public USD = getLatestPrice();
 
 	mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
@@ -146,6 +142,7 @@ contract ChainlinkFinancing {
      * @dev Only proposals that were not processed are accepted.
      * @dev Only proposals that were sponsored are accepted.
      * @dev Only proposals that passed can get processed and have the funds released.
+     * @dev proposals are requested in US dollars and paid out in ETH, conversion is done though Chainlink
      * @param dao The DAO Address.
      * @param proposalId The proposal id.
      */

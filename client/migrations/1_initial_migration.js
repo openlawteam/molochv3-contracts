@@ -11,6 +11,8 @@ const RagequitContract = artifacts.require("./adapters/RagequitContract");
 const GuildKickContract = artifacts.require("./adapters/GuildKickContract");
 const OnboardingContract = artifacts.require("./adapters/OnboardingContract");
 const TributeContract = artifacts.require("./adapters/TributeContract");
+//chainlink
+const ChainlinkFinancingContract = artifacts.require("./adapters/Chainlink-Financing.sol");
 
 const fs = require("fs");
 
@@ -34,6 +36,7 @@ module.exports = async (deployer, network, accounts) => {
       ragequit: "",
       guildkick: "",
       configuration: "",
+      chainlink:"",
     },
   };
 
@@ -69,6 +72,12 @@ module.exports = async (deployer, network, accounts) => {
     .deploy(FinancingContract, { from: owner })
     .then((financing) => {
       contracts.adapters.financing = financing.address;
+    });
+
+  await deployer
+    .deploy(ChainlinkFinancingContract, { from: owner })
+    .then((chainlink) => {
+      contracts.adapters.chainlink = chainlink.address;
     });
 
   await deployer
