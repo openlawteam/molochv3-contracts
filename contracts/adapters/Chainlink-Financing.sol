@@ -25,8 +25,6 @@ import "https://github.com/smartcontractkit/chainlink/evm-contracts/src/v0.6/int
 	Request Amount in USD and receive a corresponding amount in ETH once proposal is processed. 
 	use Chainlink ETH/USD conversion at processProposal 
 	ProposalDetails.amount - has to be converted at processPropsal from USD to ETH
-
-	Rinkeby sample K pricefeed 0x16a4d2049c64204912f29751be838045ff525214
 */
 contract ChainlinkFinancing {
 
@@ -46,7 +44,7 @@ contract ChainlinkFinancing {
    	using SafeERC20 for IERC20;
    	//convert int to uint256
    //uint256 public USD = uint(getLatestPrice());
-   	int public USD = getLatestPrice();
+   	//int public USD = getLatestPrice();
 
 	mapping(address => mapping(bytes32 => ProposalDetails)) public proposals;
 
@@ -165,19 +163,25 @@ contract ChainlinkFinancing {
         );
         dao.processProposal(proposalId);
         BankExtension bank = BankExtension(dao.getExtensionAddress(BANK));
-        
-        //Add in Chainlink data - USD is the denominator
-        //details.amount * 10000, because getLatestPrice goes to 5 decimals
-        //explicit convert USD from int to uint256
-        //TODO - will this division work with overflows????
-        uint256 ethInUSD = (details.amount * 10000)/uint256(USD); 
-        //use ethInUSD iinstead of details.amount
-        bank.subtractFromBalance(GUILD, details.token, ethInUSD);
-        bank.addToBalance(details.applicant, details.token, ethInUSD);
+
+        /*
+			call Chainlink ETH/USD feed with getLatestPrice(). 
+			explicit convert from int to uint256
+			denominator *  100000  = convert denominator to wei
+			details.amount * 1000000000000000000000 = convert numerator to wei.
+
+        */
+        uint denominator = uint(getLatestPrice()) * 100000; 
+        uint256 ethInUsdAmount = (details.amount * 1000000000000000000000)/denominator; 
+        //use ethInUsdAmount iinstead of details.amount
+        bank.subtractFromBalance(GUILD, details.token, ethInUsdAmount);
+        bank.addToBalance(details.applicant, details.token, ethInUsdAmount);
     } //process
 
      /**
-     * Returns the latest price to 5 decimials
+     * 
+     Chainlink
+     Returns the latest price to 5 decimials 
      e.g. 176471000000 = $1,764.71
      */
     function getLatestPrice() public view returns (int) {
