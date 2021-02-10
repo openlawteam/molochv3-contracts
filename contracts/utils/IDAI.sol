@@ -3,8 +3,10 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: MIT
 
 interface IDAI {
+    function push(address usr, uint wad) external;
+    
     function pull(address usr, uint256 wad) external;
-
+    
     function permit(
         address holder,
         address spender,
