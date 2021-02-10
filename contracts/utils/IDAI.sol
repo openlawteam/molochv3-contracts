@@ -5,8 +5,6 @@ pragma solidity ^0.8.0;
 interface IDAI {
     function pull(address usr, uint256 wad) external;
 
-    function approve(address usr, uint256 wad) external returns (bool);
-
     function permit(
         address holder,
         address spender,
