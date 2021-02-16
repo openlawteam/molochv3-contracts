@@ -16,7 +16,7 @@ import "../guards/MemberGuard.sol";
 // import "../helpers/SafeERC20.sol";
 
 //import Chainlink Aggregator - will I be able to import if the Aggregator is  v0.7 of Solidity
-//import "./interfaces/AggregatorV3Interface.sol";
+import "../interfaces/chainlink/AggregatorV3Interface.sol";
 
 //REMIX
 //import "https://github.com/smartcontractkit/chainlink/evm-contracts/src/v0.7/interfaces/AggregatorV3Interface.sol";
