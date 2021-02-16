@@ -15,42 +15,10 @@ import "../guards/MemberGuard.sol";
 // import "../helpers/AddressLib.sol";
 // import "../helpers/SafeERC20.sol";
 
-//import Chainlink Aggregator - will I be able to import if the Aggregator is  v0.7 of Solidity
-import "../interfaces/chainlink/AggregatorV3Interface.sol";
+import "./interfaces/chainlink/AggregatorV3Interface.sol";
 
 //REMIX
 //import "https://github.com/smartcontractkit/chainlink/evm-contracts/src/v0.7/interfaces/AggregatorV3Interface.sol";
-
-interface AggregatorV3Interface {
-
-  function decimals() external view returns (uint8);
-  function description() external view returns (string memory);
-  function version() external view returns (uint256);
-
-  // getRoundData and latestRoundData should both raise "No data present"
-  // if they do not have data to report, instead of returning unset values
-  // which could be misinterpreted as actual reported values.
-  function getRoundData(uint80 _roundId)
-    external
-    view
-    returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound
-    );
-  function latestRoundData()
-    external
-    view
-    returns (
-      uint80 roundId,
-      int256 answer,
-      uint256 startedAt,
-      uint256 updatedAt,
-      uint80 answeredInRound
-    );
-}
 
 /*
 	OVERVIEW: Financing Requests in USD
@@ -70,8 +38,13 @@ contract ChainlinkFinancing is AggregatorV3Interface, DaoConstants, MemberGuard 
      * Rinkeby Contract Address: 0x8A753747A1Fa494EC906cE90E9f37563A8AF630e
      * Mainnet Contract Address:  0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
      */
-  constructor(address _priceFeed) public {
-    priceFeed = AggregatorV3Interface(_priceFeed);
+  
+  // constructor(address _priceFeed) public {
+  //   priceFeed = AggregatorV3Interface(_priceFeed);
+  // }
+
+  constructor() public {
+    priceFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
   }
 
   	using Address for address;
