@@ -64,7 +64,7 @@ contract BankExtension is DaoConstants, AdapterGuard, IExtension {
     struct Checkpoint {
         // A checkpoint for marking number of votes from a given block
         uint96 fromBlock;
-        uint160 amount;
+        uint64 amount;
     }
 
     address[] public tokens;
@@ -412,10 +412,14 @@ contract BankExtension is DaoConstants, AdapterGuard, IExtension {
         address tokenAddr,
         uint256 amount
     ) internal {
-        uint32 nCheckpoints = numCheckpoints[tokenAddr][member];
-        require(amount < type(uint160).max, "too big of a vote");
-        uint160 newAmount = uint160(amount);
+        require(
+            amount < type(uint64).max,
+            "the token amount exceeds the maximum limit"
+        );
 
+        uint64 newAmount = uint64(amount);
+
+        uint32 nCheckpoints = numCheckpoints[tokenAddr][member];
         if (
             nCheckpoints > 0 &&
             checkpoints[tokenAddr][member][nCheckpoints - 1].fromBlock ==

@@ -44,6 +44,92 @@ const {
 const { checkBalance } = require("../../utils/TestUtils.js");
 
 contract("MolochV3 - Onboarding Adapter", async (accounts) => {
+  it("should not be possible onboard when the token amount exeeds the internal token limits", async () => {
+    const myAccount = accounts[1];
+    const applicant = accounts[2];
+
+    // Issue OpenLaw ERC20 Basic Token for tests
+    // Token supply higher than the limit defined in Bank._createNewAmountCheckpoint line 415
+    const oltContract = await OLToken.new(toBN("36893488147419103232")); //2**65
+    const oltContractAddr = oltContract.address;
+    console.log(oltContractAddr);
+
+    const dao = await createDao(
+      myAccount,
+      toBN("1"), // share price
+      toBN("1000000000000000000000000000000"), //10**30
+      10, // voting period
+      1, // voting grace period
+      oltContractAddr, // token address to mint
+      true, // finaliza dao creation
+      toBN("1000000000000000000000000000001") // max chunks = 10**30 + 1
+    );
+
+    const voting = await getContract(dao, "voting", VotingContract);
+    const onboarding = await getContract(dao, "onboarding", OnboardingContract);
+
+    // Transfer OLTs to myAccount
+    const initialTokenBalance = toBN("18446744073709551616"); //2**64
+    await oltContract.transfer(applicant, initialTokenBalance);
+    let applicantTokenBalance = await oltContract.balanceOf.call(applicant);
+    assert.equal(
+      initialTokenBalance.toString(),
+      applicantTokenBalance.toString(),
+      "applicant account must be initialized with 2**64 OLT Tokens"
+    );
+
+    // Send all the 2**64 to get an error
+    const tokenAmount = initialTokenBalance;
+
+    // Pre-approve spender (onboarding adapter) to transfer proposer tokens
+    await oltContract.approve(onboarding.address, tokenAmount, {
+      from: applicant,
+    });
+
+    await onboarding.onboard(
+      dao.address,
+      "0x1",
+      applicant,
+      SHARES,
+      tokenAmount,
+      {
+        from: applicant,
+        gasPrice: toBN("0"),
+      }
+    );
+
+    await onboarding.sponsorProposal(dao.address, "0x1", [], {
+      from: myAccount,
+      gasPrice: toBN("0"),
+    });
+
+    await voting.submitVote(dao.address, "0x1", 1, {
+      from: myAccount,
+      gasPrice: toBN("0"),
+    });
+
+    await advanceTime(10000);
+
+    try {
+      await onboarding.processProposal(dao.address, "0x1", {
+        from: myAccount,
+        gasPrice: toBN("0"),
+      });
+      assert.fail(
+        "should not be possible to join if the token amount exceeds the DAO limits"
+      );
+    } catch (e) {
+      assert.equal(e.reason, "the token amount exceeds the maximum limit");
+      applicantTokenBalance = await oltContract.balanceOf.call(applicant);
+      //TODO: The amount should be sent back to the applicant
+      // assert.equal(
+      //   initialTokenBalance.toString(),
+      //   applicantTokenBalance.toString(),
+      //   "applicant account should contain 2**64 OLT Tokens when the onboard fails"
+      // );
+    }
+  });
+
   it("should be possible to join a DAO with ETH contribution", async () => {
     const myAccount = accounts[1];
     const applicant = accounts[2];
