@@ -41,7 +41,8 @@ contract OnboardingContract is
     IOnboarding,
     DaoConstants,
     MemberGuard,
-    AdapterGuard
+    AdapterGuard,
+    ReentrancyGuard
 {
     using Address for address payable;
     using SafeERC20 for IERC20;

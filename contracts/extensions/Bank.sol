@@ -7,9 +7,9 @@ import "../core/DaoRegistry.sol";
 import "./IExtension.sol";
 import "../guards/AdapterGuard.sol";
 import "../utils/IERC20.sol";
-
 import "../helpers/AddressLib.sol";
 import "../helpers/SafeERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
 MIT License
@@ -35,7 +35,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-contract BankExtension is DaoConstants, AdapterGuard, IExtension {
+contract BankExtension is DaoConstants, AdapterGuard, IExtension, ReentrancyGuard {
     using Address for address payable;
     using SafeERC20 for IERC20;
 
@@ -118,7 +118,7 @@ contract BankExtension is DaoConstants, AdapterGuard, IExtension {
         address payable member,
         address tokenAddr,
         uint256 amount
-    ) external hasExtensionAccess(this, AclFlag.WITHDRAW) {
+    ) external nonReentrant hasExtensionAccess(this, AclFlag.WITHDRAW) {
         require(
             balanceOf(member, tokenAddr) >= amount,
             "dao::withdraw::not enough funds"
@@ -189,7 +189,7 @@ contract BankExtension is DaoConstants, AdapterGuard, IExtension {
         }
     }
 
-    function updateToken(address tokenAddr) external {
+    function updateToken(address tokenAddr) external nonReentrant {
         require(isTokenAllowed(tokenAddr), "non allowed token");
         uint256 totalBalance = balanceOf(TOTAL, tokenAddr);
 

@@ -7,6 +7,7 @@
     "test": "test"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^4.0.0-rc.0",
     "eth-sig-util": "^3.0.0",
     "ethereumjs-util": "^7.0.5",
     "ganache-cli": "^6.12.1",
