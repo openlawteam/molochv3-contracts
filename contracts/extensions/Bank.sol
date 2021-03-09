@@ -7,7 +7,6 @@ import "../core/DaoRegistry.sol";
 import "./IExtension.sol";
 import "../guards/AdapterGuard.sol";
 import "../utils/IERC20.sol";
-
 import "../helpers/AddressLib.sol";
 import "../helpers/SafeERC20.sol";
 
@@ -165,6 +164,7 @@ contract BankExtension is DaoConstants, AdapterGuard, IExtension {
     {
         require(isNotReservedAddress(token), "reservedToken");
         require(!availableInternalTokens[token], "internalToken");
+        require(tokens.length <= MAX_TOKENS_GUILD_BANK, "too many tokens");
 
         if (!availableTokens[token]) {
             availableTokens[token] = true;
@@ -183,6 +183,8 @@ contract BankExtension is DaoConstants, AdapterGuard, IExtension {
     {
         require(isNotReservedAddress(token), "reservedToken");
         require(!availableTokens[token], "availableToken");
+        require(internalTokens.length <= MAX_TOKENS_GUILD_BANK, "too many tokens");
+
         if (!availableInternalTokens[token]) {
             availableInternalTokens[token] = true;
             internalTokens.push(token);
