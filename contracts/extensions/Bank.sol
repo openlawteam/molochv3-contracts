@@ -403,6 +403,7 @@ contract BankExtension is DaoConstants, AdapterGuard, IExtension {
 
     /**
      * @notice Creates a new amount checkpoint for a token of a certain member
+     * @dev Reverts if the amount is greater than 2**64-1
      * @param member The member whose checkpoints will be added to
      * @param tokenAddr The token of which the balance will be changed
      * @param amount The amount to be written into the new checkpoint

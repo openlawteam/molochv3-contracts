@@ -47,6 +47,7 @@ const maximumChunks = toBN("11");
 const OLToken = artifacts.require("./test/OLToken");
 const TestToken1 = artifacts.require("./test/TestToken1");
 const TestToken2 = artifacts.require("./test/TestToken2");
+const TestFairShareCalc = artifacts.require("./test/TestFairShareCalc");
 const Multicall = artifacts.require("./util/Multicall");
 
 const DaoFactory = artifacts.require("./core/DaoFactory");
@@ -683,6 +684,7 @@ module.exports = {
   OLToken,
   TestToken1,
   TestToken2,
+  TestFairShareCalc,
   DaoFactory,
   DaoRegistry,
   VotingContract,

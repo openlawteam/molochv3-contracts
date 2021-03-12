@@ -95,7 +95,7 @@ contract OnboardingContract is
         require(maximumChunks > 0, "maximumChunks must be higher than 0");
         require(chunkSize > 0, "chunkSize must be higher than 0");
         require(sharesPerChunk > 0, "sharesPerChunk must be higher than 0");
-
+        //sharesPerChunk
         dao.setConfiguration(
             configKey(tokenAddrToMint, MaximumChunks),
             maximumChunks
