@@ -87,15 +87,16 @@ contract OnboardingContract is
     function configureDao(
         DaoRegistry dao,
         address tokenAddrToMint,
-        uint256 chunkSize,
-        uint256 sharesPerChunk,
-        uint256 maximumChunks,
+        uint64 chunkSize,
+        uint64 sharesPerChunk,
+        uint64 maximumChunks,
         address tokenAddr
     ) external onlyAdapter(dao) {
-        require(maximumChunks > 0, "maximumChunks must be higher than 0");
-        require(chunkSize > 0, "chunkSize must be higher than 0");
-        require(sharesPerChunk > 0, "sharesPerChunk must be higher than 0");
-        //sharesPerChunk
+        require(maximumChunks > 0 && maximumChunks < type(uint64).max, "maximumChunks must be between (0,2^64)");
+        require(chunkSize > 0, "chunkSize must be greater than 0");
+        require(sharesPerChunk > 0, "sharesPerChunk must be greater than 0");
+        require(chunkSize * sharesPerChunk < 2^80-1, "chunkSize * sharesPerChunk must be between (0,2^80)");
+
         dao.setConfiguration(
             configKey(tokenAddrToMint, MaximumChunks),
             maximumChunks
